@@ -2,22 +2,22 @@
 
 function readPythonVersion 
 {
-    echo "Choose Python version. If you don't know input 1: "
-    echo "1 Python 2.7"
-    echo "2 Python 3.x"
+  echo "Choose Python version. If you don't know input 1: "
+  echo "1 Python 2.7"
+  echo "2 Python 3.x"
+  read pythonVersion
+  while [[ $pythonVersion -lt 1 || $pythonVersion -gt 2 ]]
+  do  
+    echo "Select one of the options"
     read pythonVersion
-    while [[ $pythonVersion -lt 1 || $pythonVersion -gt 2 ]]
-    do  
-        echo "Select one of the options"
-        read pythonVersion
-    done    
+  done    
 }
 
 function checkForPip3Existence
 {
-    if ! pip3Loc="$(type -p "pip3")" || [ -z "$pip3Loc" ]; then
-        apt-get -y install python3-pip
-    fi
+  if ! pip3Loc="$(type -p "pip3")" || [ -z "$pip3Loc" ]; then
+    apt-get -y install python3-pip
+  fi
 }
 
 [ "$UID" -eq 0 ] || { echo -e "This script must be run as root.\nFor example: sudo ./installator.sh"; exit 1;}
@@ -28,8 +28,8 @@ echo "3 Docker"
 read mechanismId
 while [[ $mechanismId -lt 1 || $mechanismId -gt 3 ]]
 do  
-    echo "Select one of the options"
-    read mechanismId
+  echo "Select one of the options"
+  read mechanismId
 done    
 case $mechanismId in
   1) 
@@ -76,8 +76,8 @@ case $mechanismId in
     read usingMethod
     while [[ $usingMethod -gt 4 || $usingMethod -lt 1 ]]
     do  
-        echo "Select one of the options"
-        read usingMethod
+      echo "Select one of the options"
+      read usingMethod
     done    
     echo "Copy/paste this URL into your browser and choose Tag Name (without 'gpu' substring in the name)"
     echo "https://hub.docker.com/r/tensorflow/tensorflow/tags/"
