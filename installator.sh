@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function readPythonVersion 
+function choosePythonVersion 
 {
   echo "Choose Python version. If you don't know input 1: "
   echo "1 Python 2.7"
@@ -25,8 +25,9 @@ echo "Determine how to install TensorFlow. We recommended virtualenv mechanism: 
 echo "1 virtualenv"
 echo "2 'native' pip"
 echo "3 Docker"
+echo "4 Anaconda"
 read mechanismId
-while [[ $mechanismId -lt 1 || $mechanismId -gt 3 ]]
+while [[ $mechanismId -lt 1 || $mechanismId -gt 4 ]]
 do  
   echo "Select one of the options"
   read mechanismId
@@ -39,7 +40,7 @@ case $mechanismId in
     read targetDirectory
     virtualenv --system-site-packages $targetDirectory
     source ./$targetDirectory/bin/activate
-    readPythonVersion
+    choosePythonVersion
     case $pythonVersion in
       1) pip install --upgrade tensorflow pip;;
       2) 
@@ -51,7 +52,7 @@ case $mechanismId in
   2)
     echo "Install TensorFlow with native pip mechanism"
     apt-get install python-pip python-dev
-    readPythonVersion
+    choosePythonVersion
     case $pythonVersion in
       1) pip install tensorflow;;
       2) 
@@ -89,6 +90,38 @@ case $mechanismId in
       3) docker run -it -p 8888:8888 -p 6006:6006 b.gcr.io/tensorflow:$tagName;; 
     esac
     ;; 
+  4)
+    echo "Install TensorFlow with Anaconda mechanism"
+    processorArchitecture=$(uname -i)
+    cd /home/$SUDO_USER/Downloads/
+    choosePythonVersion
+    case $pythonVersion in
+      1) 
+        case $processorArchitecture in
+          "x86_64") 
+            wget "https://repo.continuum.io/archive/Anaconda2-4.3.1-Linux-x86_64.sh"
+            bash Anaconda2-4.3.1-Linux-x86_64.sh
+            ;;
+          "i386") 
+            wget "https://repo.continuum.io/archive/Anaconda2-4.3.1-Linux-x86.sh"
+            bash Anaconda2-4.3.1-Linux-x86.sh
+            ;;
+        esac
+        ;;
+      2) 
+        case $processorArchitecture in 
+          "x86_64") 
+            wget "https://repo.continuum.io/archive/Anaconda3-4.3.1-Linux-x86_64.sh"
+            bash Anaconda3-4.3.1-Linux-x86_64.sh
+            ;;
+          "i386") 
+            wget "https://repo.continuum.io/archive/Anaconda3-4.3.1-Linux-x86.sh"
+            bash Anaconda3-4.3.1-Linux-x86.sh
+            ;;
+        esac
+        ;;
+    esac
+    ;;
 esac
 
 
