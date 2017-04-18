@@ -1,5 +1,4 @@
 #!/bin/bash
-
 function choosePythonVersion 
 {
   echo "Choose Python version. If you don't know input 1: "
@@ -13,6 +12,21 @@ function choosePythonVersion
   done    
 }
 
+function chooseInstallationMechanism
+{
+  echo "Determine how to install TensorFlow. We recommended virtualenv mechanism: "
+  echo "1 virtualenv"
+  echo "2 'native' pip"
+  echo "3 Docker"
+  echo "4 Anaconda"
+  read mechanismId
+  while [[ $mechanismId -lt 1 || $mechanismId -gt 4 ]]
+  do  
+    echo "Select one of the options"
+    read mechanismId
+  done
+}
+
 function checkForPip3Existence
 {
   if ! pip3Loc="$(type -p "pip3")" || [ -z "$pip3Loc" ]; then
@@ -20,7 +34,51 @@ function checkForPip3Existence
   fi
 }
 
+function cudaToolkitInstallation
+{
+  apt-get install linux-headers-$(uname -r)
+  wget "http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb"
+  dpkg -i $(locate -b "\cuda-repo-*.deb")
+  apt-get install cuda
+
+  export PATH=/usr/local/cuda-8.0/bin${PATH:+:${PATH}}
+  if [ "$(uname -m)" == "x86_64" ]; then
+    export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64\
+                         ${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+  else 
+    export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib\
+                         ${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+  fi
+}
+
+function cuDNNInstallation
+{
+  #registration
+  wget "https://developer.nvidia.com/compute/machine-learning/cudnn/secure/v5.1/prod_20161129/8.0/cudnn-8.0-linux-x64-v5.1-tgz"
+  cd ~
+  tar -zxf ./Downloads/cudnn-8.0-linux-x64-v5.1.tgz
+  cd cuda
+  cp lib64/* /usr/local/cuda/lib64/
+  cp include/* /usr/local/cuda/include/
+  printf 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64"\nexport CUDA_HOME=/usr/local/cuda' >> ~/.bashrc
+}
+
+function nvidiaSoftwareInstallation
+{
+  cudaToolkitInstallation
+  cuDNNInstallation
+}
+
 [ "$UID" -eq 0 ] || { echo -e "This script must be run as root.\nFor example: sudo ./installator.sh"; exit 1;}
+
+echo "Determine which TensorFlow to install. If you don't know input 1: "
+echo "1 TensorFlow with CPU support only"
+echo "2 TensorFlow with GPU support only"
+read processingUnit
+if [ $processingUnit == 2 ]; then
+  nvidiaSoftwareInstallation
+fi
+
 echo "Determine how to install TensorFlow. We recommended virtualenv mechanism: "
 echo "1 virtualenv"
 echo "2 'native' pip"
@@ -31,7 +89,8 @@ while [[ $mechanismId -lt 1 || $mechanismId -gt 4 ]]
 do  
   echo "Select one of the options"
   read mechanismId
-done    
+done
+
 case $mechanismId in
   1) 
     echo "Install TensorFlow with virtualenv mechanism"
@@ -40,6 +99,7 @@ case $mechanismId in
     read targetDirectory
     virtualenv --system-site-packages $targetDirectory
     source ./$targetDirectory/bin/activate
+
     choosePythonVersion
     case $pythonVersion in
       1) pip install --upgrade tensorflow pip;;
@@ -123,5 +183,7 @@ case $mechanismId in
     esac
     ;;
 esac
+
+
 
 
