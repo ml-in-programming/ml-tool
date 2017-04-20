@@ -1,4 +1,5 @@
 #!/bin/bash
+
 function choosePythonVersion 
 {
   echo "Choose Python version. If you don't know input 1: "
@@ -93,7 +94,7 @@ done
 
 case $mechanismId in
   1) 
-    echo "Install TensorFlow with virtualenv mechanism"
+    echo "Install TensorFlow with virtualenv mechanism"  # not tested yet
     apt-get -y install python-pip python-dev python-virtualenv 
     echo "Input target directory that specifies the top of the virtualenv tree. For example './tensorflow'"
     read targetDirectory
@@ -102,30 +103,46 @@ case $mechanismId in
 
     choosePythonVersion
     case $pythonVersion in
-      1) pip install --upgrade tensorflow pip;;
+      1) 
+        case $processingUnit in 
+          1) pip install --upgrade tensorflow pip;;
+          2) pip install --upgrade tensorflow-gpu;; # pip?
+        esac
+        ;;
       2) 
         checkForPip3Existence
-        pip3 install --upgrade tensorflow pip
+        case $processingUnit in
+          1) pip3 install --upgrade tensorflow pip;;
+          2) pip3 install --upgrade tensorflow-gpu;; # pip?
+        esac
         ;;
     esac
     ;;
   2)
-    echo "Install TensorFlow with native pip mechanism"
+    echo "Install TensorFlow with native pip mechanism"   # not tested yet
     apt-get install python-pip python-dev
     choosePythonVersion
     case $pythonVersion in
-      1) pip install tensorflow;;
+      1) 
+        case $processingUnit in
+          1) pip install tensorflow;;
+          2) pip install tensorflow-gpu;;
+        esac
+        ;;
       2) 
         checkForPip3Existence
-        pip3 install tensorflow
+        case $processingUnit in
+          1) pip3 install tensorflow;;
+          2) pip3 install tensorflow-gpu;;
+        esac
         ;;
     esac
     ;;
   3)
-    echo "Install TensorFlow with Docker Community Edition for Ubuntu mechanism"
+    echo "Install TensorFlow with Docker Community Edition for Ubuntu mechanism"  # not tested yet
     apt-get -y install apt-transport-https ca-certificates curl
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" # add 32-bit there?
     apt-get update
 
     apt-get -y install docker-ce
@@ -145,13 +162,28 @@ case $mechanismId in
     echo "Input chosen Tag Name, if you don't know input 'latest-py3'"
     read tagName
     case $usingMethod in
-      1) docker run -it gcr.io/tensorflow/tensorflow:$tagName bash;;
-      2) docker run -it -p 8888:8888 gcr.io/tensorflow/tensorflow:$tagName;;
-      3) docker run -it -p 8888:8888 -p 6006:6006 b.gcr.io/tensorflow:$tagName;; 
+      1) 
+        case $processingUnit in
+          1) docker run -it gcr.io/tensorflow/tensorflow:$tagName bash;;        # without bash in the end?
+          2) nvidia-docker run -it gcr.io/tensorflow/tensorflow:$tagName bash;; # also
+        esac
+        ;;
+      2) 
+        case $processingUnit in
+          1) docker run -it -p 8888:8888 gcr.io/tensorflow/tensorflow:$tagName;;
+          2) nvidia-docker run -it -p 8888:8888 gcr.io/tensorflow/tensorflow:$tagName;;
+        esac 
+        ;;
+      3) 
+        case $processingUnit in
+          1) docker run -it -p 8888:8888 -p 6006:6006 b.gcr.io/tensorflow:$tagName;; 
+          2) nvidia-docker run -it -p 8888:8888 -p 6006:6006 b.gcr.io/tensorflow:$tagName;; 
+        esac
+        ;;
     esac
     ;; 
-  4)
-    echo "Install TensorFlow with Anaconda mechanism"
+  4) # read more about Anaconda and try understand why it's used wihout explicit GPU allowing
+    echo "Install TensorFlow with Anaconda mechanism"  # not tested yet
     processorArchitecture=$(uname -i)
     cd /home/$SUDO_USER/Downloads/
     choosePythonVersion
