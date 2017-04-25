@@ -1,9 +1,11 @@
+from typing import Optional
 from PyQt5.QtWidgets import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from ColumnValuesWidget import ColumnValuesWidget
 
 class ColumnWidget(QGroupBox):
     def __init__(self, series: pd.DataFrame):
@@ -15,6 +17,10 @@ class ColumnWidget(QGroupBox):
         layout.addWidget(QLabel("Name: " + series.name))
         layout.addWidget(QLabel("Type: " + series.dtypes.name))
         layout.addWidget(QLabel("Missing: {} ({:.0f}%)".format(series.isnull().sum(), series.isnull().sum() / len(series) * 100.0)))
+        btn = QPushButton("View values")
+        btn.clicked.connect(self.view_values)
+        layout.addWidget(btn)
+
         if series.dtypes in [np.float, np.int64]:
             f,  ax1 = plt.subplots(1)
             sns.distplot(series.dropna(), bins=10, ax=ax1, kde=(series.dtypes == np.float))
@@ -33,5 +39,10 @@ class ColumnWidget(QGroupBox):
             f,  ax1 = plt.subplots(1)
             sns.barplot(x=counts.index, y=counts, ax=ax1)
             layout.addWidget(FigureCanvas(f))
+
         self.setLayout(layout)
         self.setMinimumHeight(400)
+
+    def view_values(self, checked: Optional[bool]):
+        self.viewer = ColumnValuesWidget(self.series)
+        self.viewer.show()
