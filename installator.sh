@@ -77,6 +77,11 @@ echo "Determine which TensorFlow to install. If you don't know input 1: "
 echo "1 TensorFlow with CPU support only"
 echo "2 TensorFlow with GPU support only"
 read processingUnit
+while [[ $processingUnit -lt 1 || $processingUnit -gt 2 ]]
+do  
+  echo "Select one of the options"
+  read processingUnit
+done
 if [ $processingUnit == 2 ]; then
   nvidiaSoftwareInstallation
 fi
