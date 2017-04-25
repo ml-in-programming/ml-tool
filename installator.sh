@@ -1,4 +1,8 @@
 #!/bin/bash
+
+[ "$UID" -eq 0 ] || { echo -e "This script must be run as root.\nFor example: sudo ./installator.sh"; exit 1;}
+set -u
+
 function choosePythonVersion 
 {
   echo "Choose Python version. If you don't know input 1: "
@@ -68,8 +72,6 @@ function nvidiaSoftwareInstallation
   cudaToolkitInstallation
   cuDNNInstallation
 }
-
-[ "$UID" -eq 0 ] || { echo -e "This script must be run as root.\nFor example: sudo ./installator.sh"; exit 1;}
 
 echo "Determine which TensorFlow to install. If you don't know input 1: "
 echo "1 TensorFlow with CPU support only"
