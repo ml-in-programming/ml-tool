@@ -8,9 +8,10 @@ import seaborn as sns
 from ColumnValuesWidget import ColumnValuesWidget
 
 class ColumnWidget(QGroupBox):
-    def __init__(self, series: pd.DataFrame):
+    def __init__(self, series: pd.DataFrame, all_data: pd.DataFrame):
         super().__init__()
         self.series = series
+        self.all_data = all_data
 
         self.setTitle(series.name)
         layout = QVBoxLayout()
@@ -44,5 +45,5 @@ class ColumnWidget(QGroupBox):
         self.setMinimumHeight(400)
 
     def view_values(self, checked: Optional[bool]):
-        self.viewer = ColumnValuesWidget(self.series)
+        self.viewer = ColumnValuesWidget(self.series, self.all_data)
         self.viewer.show()
