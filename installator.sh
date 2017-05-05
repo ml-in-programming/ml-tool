@@ -1,6 +1,9 @@
 #!/bin/bash
+#
+# Performs TensorFlow installation
 
-[ "$UID" -eq 0 ] || { echo -e "This script must be run as root.\nFor example: sudo ./installator.sh"; exit 1;}
+[ "$UID" -eq 0 ] || { echo -e "This script must be run as root.
+For example: sudo ./installator.sh"; exit 1;}
 set -u
 
 function choosePythonVersion 
@@ -18,7 +21,8 @@ function choosePythonVersion
 
 function chooseInstallationMechanism
 {
-  echo "Determine how to install TensorFlow. We recommended virtualenv mechanism: "
+  echo "Determine how to install TensorFlow.\
+   We recommended virtualenv mechanism: "
   echo "1 virtualenv"
   echo "2 'native' pip"
   echo "3 Docker"
@@ -41,7 +45,8 @@ function checkForPip3Existence
 function cudaToolkitInstallation
 {
   apt-get install linux-headers-$(uname -r)
-  wget "http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb"
+  wget "http://developer.download.nvidia.com/compute/cuda/repos/\
+  ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64"
   dpkg -i $(locate -b "\cuda-repo-*.deb")
   apt-get install cuda
 
@@ -58,13 +63,16 @@ function cudaToolkitInstallation
 function cuDNNInstallation
 {
   #registration
-  wget "https://developer.nvidia.com/compute/machine-learning/cudnn/secure/v5.1/prod_20161129/8.0/cudnn-8.0-linux-x64-v5.1-tgz"
+  wget "https://developer.nvidia.com/compute/machine-learning/\
+  cudnn/secure/v5.1/prod_20161129/8.0/cudnn-8.0-linux-x64-v5.1-tgz"
   cd ~
   tar -zxf ./Downloads/cudnn-8.0-linux-x64-v5.1.tgz
   cd cuda
   cp lib64/* /usr/local/cuda/lib64/
   cp include/* /usr/local/cuda/include/
-  printf 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64"\nexport CUDA_HOME=/usr/local/cuda' >> ~/.bashrc
+  printf 'export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/\
+  lib64:/usr/local/cuda/extras/CUPTI/lib64"
+  export CUDA_HOME=/usr/local/cuda' >> ~/.bashrc
 }
 
 function nvidiaSoftwareInstallation
@@ -86,7 +94,8 @@ if [ $processingUnit == 2 ]; then
   nvidiaSoftwareInstallation
 fi
 
-echo "Determine how to install TensorFlow. We recommended virtualenv mechanism: "
+echo "Determine how to install TensorFlow.\
+ We recommended virtualenv mechanism: "
 echo "1 virtualenv"
 echo "2 'native' pip"
 echo "3 Docker"
@@ -102,10 +111,12 @@ case $mechanismId in
   1) 
     echo "Install TensorFlow with virtualenv mechanism"
     apt-get -y install python-pip python-dev python-virtualenv 
-    echo "Input target directory that specifies the top of the virtualenv tree. For example './tensorflow'"
+    echo "Input target directory that specifies the top of the virtualenv tree. \
+For example './tensorflow'"
     read targetDirectory
     virtualenv --system-site-packages $targetDirectory
-    source ./$targetDirectory/bin/activate
+    unset PS1
+    source $targetDirectory/bin/activate
 
     choosePythonVersion
     case $pythonVersion in
@@ -129,10 +140,13 @@ case $mechanismId in
     esac
     ;;
   3)
-    echo "Install TensorFlow with Docker Community Edition for Ubuntu mechanism"
+    echo "Install TensorFlow with Docker Community Edition\ 
+     for Ubuntu mechanism"
     apt-get -y install apt-transport-https ca-certificates curl
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+    | sudo apt-key add -
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/\
+    linux/ubuntu $(lsb_release -cs) stable"
     apt-get update
 
     apt-get -y install docker-ce
@@ -147,14 +161,16 @@ case $mechanismId in
       echo "Select one of the options"
       read usingMethod
     done    
-    echo "Copy/paste this URL into your browser and choose Tag Name (without 'gpu' substring in the name)"
+    echo "Copy/paste this URL into your browser and choose Tag Name\
+     (without 'gpu' substring in the name)"
     echo "https://hub.docker.com/r/tensorflow/tensorflow/tags/"
     echo "Input chosen Tag Name, if you don't know input 'latest-py3'"
     read tagName
     case $usingMethod in
       1) docker run -it gcr.io/tensorflow/tensorflow:$tagName bash;;
       2) docker run -it -p 8888:8888 gcr.io/tensorflow/tensorflow:$tagName;;
-      3) docker run -it -p 8888:8888 -p 6006:6006 b.gcr.io/tensorflow:$tagName;; 
+      3) docker run -it -p 8888:8888\
+       -p 6006:6006 b.gcr.io/tensorflow:$tagName;; 
     esac
     ;; 
   4)
@@ -166,11 +182,13 @@ case $mechanismId in
       1) 
         case $processorArchitecture in
           "x86_64") 
-            wget "https://repo.continuum.io/archive/Anaconda2-4.3.1-Linux-x86_64.sh"
+            wget "https://repo.continuum.io/archive/\
+            Anaconda2-4.3.1-Linux-x86_64.sh"
             bash Anaconda2-4.3.1-Linux-x86_64.sh
             ;;
           "i386") 
-            wget "https://repo.continuum.io/archive/Anaconda2-4.3.1-Linux-x86.sh"
+            wget "https://repo.continuum.io/archive/\
+            Anaconda2-4.3.1-Linux-x86.sh"
             bash Anaconda2-4.3.1-Linux-x86.sh
             ;;
         esac
@@ -178,11 +196,13 @@ case $mechanismId in
       2) 
         case $processorArchitecture in 
           "x86_64") 
-            wget "https://repo.continuum.io/archive/Anaconda3-4.3.1-Linux-x86_64.sh"
+            wget "https://repo.continuum.io/archive/\
+            Anaconda3-4.3.1-Linux-x86_64.sh"
             bash Anaconda3-4.3.1-Linux-x86_64.sh
             ;;
           "i386") 
-            wget "https://repo.continuum.io/archive/Anaconda3-4.3.1-Linux-x86.sh"
+            wget "https://repo.continuum.io/archive/\
+            Anaconda3-4.3.1-Linux-x86.sh"
             bash Anaconda3-4.3.1-Linux-x86.sh
             ;;
         esac
