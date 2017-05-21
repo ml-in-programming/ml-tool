@@ -1,4 +1,5 @@
 #!/bin/bash
+
 function choosePythonVersion 
 {
   echo "Choose Python version. If you don't know input 1: "
@@ -38,7 +39,8 @@ function cudaToolkitInstallation
 {
   apt-get install linux-headers-$(uname -r)
   wget "http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_8.0.61-1_amd64.deb"
-  dpkg -i $(locate -b "\cuda-repo-*.deb")
+  dpkg -i $(ls cuda-repo-*.deb)
+  apt-get update
   apt-get install cuda
 
   export PATH=/usr/local/cuda-8.0/bin${PATH:+:${PATH}}
@@ -66,7 +68,7 @@ function cuDNNInstallation
 function nvidiaSoftwareInstallation
 {
   cudaToolkitInstallation
-  cuDNNInstallation
+  #cuDNNInstallation
 }
 
 [ "$UID" -eq 0 ] || { echo -e "This script must be run as root.\nFor example: sudo ./installator.sh"; exit 1;}
@@ -103,8 +105,8 @@ case $mechanismId in
     choosePythonVersion
     case $pythonVersion in
       1) pip install --upgrade tensorflow pip;;
-      2) 
-        checkForPip3Existence
+      2)
+        checkForPip3Existence 
         pip3 install --upgrade tensorflow pip
         ;;
     esac
@@ -125,7 +127,7 @@ case $mechanismId in
     echo "Install TensorFlow with Docker Community Edition for Ubuntu mechanism"
     apt-get -y install apt-transport-https ca-certificates curl
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" # add 32-bit there?
     apt-get update
 
     apt-get -y install docker-ce
@@ -135,7 +137,7 @@ case $mechanismId in
     echo "2 If you plan to run TensorFlow programs as Jupyter notebooks"
     echo "3 If you'd like to run TensorBoard inside the container"
     read usingMethod
-    while [[ $usingMethod -gt 4 || $usingMethod -lt 1 ]]
+    while [[ $usingMethod -gt 3 || $usingMethod -lt 1 ]]
     do  
       echo "Select one of the options"
       read usingMethod
@@ -167,6 +169,7 @@ case $mechanismId in
             bash Anaconda2-4.3.1-Linux-x86.sh
             ;;
         esac
+        export PATH=~/anaconda2/bin:$PATH
         ;;
       2) 
         case $processorArchitecture in 
@@ -179,11 +182,25 @@ case $mechanismId in
             bash Anaconda3-4.3.1-Linux-x86.sh
             ;;
         esac
+        export PATH=~/anaconda3/bin:$PATH
+        ;;
+    esac
+
+    case $pythonVersion in
+      1)
+        conda create -n tensorflow 
+        source activate  tensorflow
+        pip install --ignore-installed --upgrade https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-1.1.0-cp27-none-linux_x86_64.whl
+        export PATH=~/anaconda2/bin:$PATH
+        ;;
+      2)
+        conda create --name tensorflow python=3.5
+        source activate tensorflow 
+        conda install jupyter
+        conda install scipy
+        pip install tensorflow
+        export PATH=~/anaconda3/bin:$PATH
         ;;
     esac
     ;;
 esac
-
-
-
-
