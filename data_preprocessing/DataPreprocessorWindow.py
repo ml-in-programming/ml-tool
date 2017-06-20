@@ -9,9 +9,12 @@ class DataPreprocessorWindow(QMainWindow):
         self.setWindowTitle("Data preprocessor")
 
         self.data = pd.read_csv("train.csv")
+        self.update()
+
+    def update(self):
         layout = QGridLayout()
         for i, col in enumerate(self.data.columns):
-            layout.addWidget(ColumnWidget(self.data[col], self.data), i // 2, i % 2)
+            layout.addWidget(ColumnWidget(self.data[col], self.data, self), i // 2, i % 2)
         widget = QWidget()
         widget.setLayout(layout)
         area = QScrollArea()

@@ -3,15 +3,17 @@ from PyQt5.QtWidgets import *
 import pandas as pd
 import numpy as np
 
+
 class RowsWidget(QWidget):
-    def __init__(self, all_data: pd.DataFrame):
+    def __init__(self, all_data: pd.DataFrame, wnd):
         super().__init__()
         self.all_data = all_data
+        self.wnd = wnd
 
         layout = QVBoxLayout()
 
         model = QStandardItemModel()
-        for _, row in all_data.iterrows():
+        for i, row in all_data.iterrows():
             model.appendRow(map(lambda x: QStandardItem(str(x)), row))
         #model.setHorizontalHeaderLabels(["Value", "Count"])
         #tbl = np.asarray(np.unique(series.dropna(), return_counts=True)).T
@@ -27,5 +29,17 @@ class RowsWidget(QWidget):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         layout.addWidget(self.table)
 
+        btn = QPushButton("Remove rows")
+        btn.clicked.connect(self.remove_rows)
+        layout.addWidget(btn)
+
         self.setLayout(layout)
         self.setWindowTitle("Rows")
+
+    def remove_rows(self):
+        ids = set()
+        for idx in self.table.selectedIndexes():
+            ids.add(self.all_data.index[idx.row()])
+        self.wnd.data = self.wnd.data[~self.wnd.data.index.isin(ids)]
+        self.wnd.update()
+        self.close()

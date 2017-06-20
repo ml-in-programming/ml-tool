@@ -2,13 +2,15 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import pandas as pd
 import numpy as np
+
 from RowsWidget import RowsWidget
 
 class ColumnValuesWidget(QWidget):
-    def __init__(self, series: pd.Series, all_data: pd.DataFrame):
+    def __init__(self, series: pd.Series, all_data: pd.DataFrame, wnd):
         super().__init__()
         self.series = series
         self.all_data = all_data
+        self.wnd = wnd
 
         layout = QVBoxLayout()
 
@@ -37,8 +39,19 @@ class ColumnValuesWidget(QWidget):
     def show_values(self):
         vals = []
         model = self.table.model()
+        getNull = False
         for idx in self.table.selectedIndexes():
             if idx.column() == 0:
-                vals.append(self.series.dtype.type(model.data(idx)))
-        self.rows_widget = RowsWidget(self.all_data[self.all_data[self.series.name].isin(vals)])
+                val = model.data(idx)
+                if val == "N/A":
+                    getNull = True
+                else:
+                    val = self.series.dtype.type(val)
+                    vals.append(val)
+        msk = self.all_data[self.series.name].isin(vals)
+        if getNull:
+            msk = msk | self.all_data[self.series.name].isnull()
+        self.rows_widget = RowsWidget(self.all_data[
+                                          msk
+                                      ], self.wnd)
         self.rows_widget.show()
