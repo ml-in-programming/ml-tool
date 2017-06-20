@@ -17,9 +17,16 @@ class ColumnWidget(QGroupBox):
 
         self.setTitle(series.name)
         layout = QVBoxLayout()
-        layout.addWidget(QLabel("Name: " + series.name))
-        layout.addWidget(QLabel("Type: " + series.dtypes.name))
-        layout.addWidget(QLabel("Missing: {} ({:.0f}%)".format(series.isnull().sum(), series.isnull().sum() / len(series) * 100.0)))
+        #layout.addWidget(QLabel("Name: " + series.name))
+        if series.dtypes.name == "object":
+            layout.addWidget(QLabel("Type: string"))
+        elif series.dtypes.name == "int64":
+            layout.addWidget(QLabel("Type: integer"))
+        elif series.dtypes.name == "float64":
+            layout.addWidget(QLabel("Type: real number"))
+        else:
+            layout.addWidget(QLabel("Type: unknown"))
+        layout.addWidget(QLabel("Missing values: {} ({:.0f}%)".format(series.isnull().sum(), series.isnull().sum() / len(series) * 100.0)))
         btn = QPushButton("View values")
         btn.clicked.connect(self.view_values)
         layout.addWidget(btn)
@@ -30,7 +37,7 @@ class ColumnWidget(QGroupBox):
             layout.addWidget(FigureCanvas(f))
         elif series.dtypes == np.object:
             counts = series.value_counts()
-            layout.addWidget(QLabel("Distinct: {}".format(len(counts))))
+            layout.addWidget(QLabel("Distinct values: {}".format(len(counts))))
             if len(counts) > 6:
                 total = counts[6:].sum()
                 counts = counts[:6]

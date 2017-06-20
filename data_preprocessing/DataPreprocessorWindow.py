@@ -8,7 +8,7 @@ class DataPreprocessorWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Data preprocessor")
 
-        self.data = pd.read_csv("train.csv")
+        self.data = pd.read_csv(QApplication.arguments()[1])
         self.update()
 
     def update(self):

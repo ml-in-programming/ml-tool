@@ -15,6 +15,7 @@ class RowsWidget(QWidget):
         model = QStandardItemModel()
         for i, row in all_data.iterrows():
             model.appendRow(map(lambda x: QStandardItem(str(x)), row))
+        model.setHorizontalHeaderLabels(all_data.columns)
         #model.setHorizontalHeaderLabels(["Value", "Count"])
         #tbl = np.asarray(np.unique(series.dropna(), return_counts=True)).T
         #o = np.argsort(tbl[:, 1])[::-1][:50]
