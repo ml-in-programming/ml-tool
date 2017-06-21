@@ -34,7 +34,7 @@ class ColumnValuesWidget(QWidget):
         layout.addWidget(btn)
 
         self.setLayout(layout)
-        self.setWindowTitle("Some window")
+        self.setWindowTitle("Values of '{}'".format(series.name))
 
     def show_values(self):
         vals = []
