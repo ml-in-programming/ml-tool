@@ -48,15 +48,16 @@ class ColumnWidget(QGroupBox):
         meaningLayout.addWidget(self.meaningComboBox)
         layout.addLayout(meaningLayout)
 
+        self.distinctValuesLabel = QLabel()
+        layout.addWidget(self.distinctValuesLabel)
+
+        f, self.ax1 = plt.subplots(1)
+        self.figureCanvas = FigureCanvas(f)
+        layout.addWidget(self.figureCanvas)
+
         btn = QPushButton("View values")
         btn.clicked.connect(self.view_values)
         layout.addWidget(btn)
-
-        f, self.ax1 = plt.subplots(1)
-        self.distinctValuesLabel = QLabel()
-        layout.addWidget(self.distinctValuesLabel)
-        self.figureCanvas = FigureCanvas(f)
-        layout.addWidget(self.figureCanvas)
 
         self.setLayout(layout)
         self.setMinimumHeight(400)
