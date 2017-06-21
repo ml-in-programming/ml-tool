@@ -1,5 +1,6 @@
 from typing import Optional
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +10,7 @@ from ColumnValuesWidget import ColumnValuesWidget
 
 
 class ColumnWidget(QGroupBox):
-    def __init__(self, series: pd.DataFrame, all_data: pd.DataFrame, wnd):
+    def __init__(self, series: pd.Series, all_data: pd.DataFrame, wnd):
         super().__init__()
         self.series = series
         self.all_data = all_data
@@ -26,7 +27,22 @@ class ColumnWidget(QGroupBox):
             layout.addWidget(QLabel("Type: real number"))
         else:
             layout.addWidget(QLabel("Type: unknown"))
-        layout.addWidget(QLabel("Missing values: {} ({:.0f}%)".format(series.isnull().sum(), series.isnull().sum() / len(series) * 100.0)))
+
+        missing = series.isnull().sum()
+        if missing:
+            missingLabel = QLabel("Missing values: {} ({:.0f}%)".format(missing, missing / len(series) * 100.0))
+            missingLabel.setStyleSheet("color: red")
+
+            missingButton = QPushButton("Remove missing values")
+            missingButton.clicked.connect(self.remove_missing)
+
+            missingLayout = QHBoxLayout()
+            missingLayout.addWidget(missingLabel)
+            missingLayout.addWidget(missingButton)
+            layout.addLayout(missingLayout)
+        else:
+            layout.addWidget(QLabel("All values are present"))
+
         btn = QPushButton("View values")
         btn.clicked.connect(self.view_values)
         layout.addWidget(btn)
@@ -56,3 +72,7 @@ class ColumnWidget(QGroupBox):
     def view_values(self, checked: Optional[bool]):
         self.viewer = ColumnValuesWidget(self.series, self.all_data, self.wnd)
         self.viewer.show()
+
+    def remove_missing(self, checked: Optional[bool]):
+        self.wnd.data = self.wnd.data[~self.series.isnull()]
+        self.wnd.update()
