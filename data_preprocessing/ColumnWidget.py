@@ -19,11 +19,11 @@ class ColumnWidget(QGroupBox):
         self.setTitle(series.name)
         layout = QVBoxLayout()
         #layout.addWidget(QLabel("Name: " + series.name))
-        if series.dtypes.name == "object":
+        if series.dtypes == np.object:
             layout.addWidget(QLabel("Type: string"))
-        elif series.dtypes.name == "int64":
+        elif series.dtypes == np.int64:
             layout.addWidget(QLabel("Type: integer"))
-        elif series.dtypes.name == "float64":
+        elif series.dtypes == np.float64:
             layout.addWidget(QLabel("Type: real number"))
         else:
             layout.addWidget(QLabel("Type: unknown"))
