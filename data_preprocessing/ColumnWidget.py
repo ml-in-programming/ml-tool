@@ -33,7 +33,20 @@ class ColumnWidget(QGroupBox):
         missingLayout = QHBoxLayout()
         missingLayout.addWidget(self.missingLabel)
         missingLayout.addWidget(self.missingButton)
+
+        meaningLayout = QHBoxLayout()
+        meaningLayout.addWidget(QLabel("Meaning:"))
+        self.meaningComboBox = QComboBox()
+        if series.dtypes == np.object:
+            self.meaningComboBox.addItem("several independent categories")
+        elif series.dtypes in [np.int64, np.float64]:
+            self.meaningComboBox.addItem("a continuous value")
+            if len(series.value_counts()) < 40:
+                self.meaningComboBox.addItem("several independent categories")
+        self.meaningComboBox.addItem("none, should be ignored")
         layout.addLayout(missingLayout)
+        meaningLayout.addWidget(self.meaningComboBox)
+        layout.addLayout(meaningLayout)
 
         btn = QPushButton("View values")
         btn.clicked.connect(self.view_values)
@@ -93,3 +106,6 @@ class ColumnWidget(QGroupBox):
     def remove_missing(self, checked: Optional[bool]):
         self.wnd.data = self.wnd.data[~self.series.isnull()]
         self.wnd.update_data()
+
+    def meaning(self):
+        return self.meaningComboBox.currentText()
