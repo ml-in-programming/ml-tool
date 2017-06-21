@@ -9,16 +9,21 @@ class DataPreprocessorWindow(QMainWindow):
         self.setWindowTitle("Data preprocessor")
 
         self.data = pd.read_csv(QApplication.arguments()[1])
-        self.update()
-
-    def update(self):
-        layout = QGridLayout()
+        self.columns = []
+        self.layout = QGridLayout()
         for i, col in enumerate(self.data.columns):
-            layout.addWidget(ColumnWidget(self.data[col], self.data, self), i // 2, i % 2)
+            columnWidget = ColumnWidget(self.data[col], self.data, self)
+            self.columns.append(columnWidget)
+            self.layout.addWidget(columnWidget, i // 2, i % 2)
         widget = QWidget()
-        widget.setLayout(layout)
+        widget.setLayout(self.layout)
         area = QScrollArea()
         area.setWidget(widget)
         area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         area.setWidgetResizable(True)
         self.setCentralWidget(area)
+        self.update_data()
+
+    def update_data(self):
+        for i, col in enumerate(self.data.columns):
+            self.columns[i].update_data(self.data[col], self.data)

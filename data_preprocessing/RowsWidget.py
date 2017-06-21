@@ -42,5 +42,5 @@ class RowsWidget(QWidget):
         for idx in self.table.selectedIndexes():
             ids.add(self.all_data.index[idx.row()])
         self.wnd.data = self.wnd.data[~self.wnd.data.index.isin(ids)]
-        self.wnd.update()
+        self.wnd.update_data()
         self.close()
