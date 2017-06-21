@@ -13,8 +13,10 @@ class RowsWidget(QWidget):
         layout = QVBoxLayout()
 
         model = QStandardItemModel()
+        self.index_col = len(all_data.columns)
         for i, row in all_data.iterrows():
-            model.appendRow(map(lambda x: QStandardItem(str(x)), row))
+            assert len(row) == self.index_col
+            model.appendRow([QStandardItem(str(x)) for x in row] + [QStandardItem(str(i))])
         model.setHorizontalHeaderLabels(all_data.columns)
         #model.setHorizontalHeaderLabels(["Value", "Count"])
         #tbl = np.asarray(np.unique(series.dropna(), return_counts=True)).T
@@ -28,6 +30,7 @@ class RowsWidget(QWidget):
         self.table.setSortingEnabled(True)
         self.table.setModel(model)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setColumnHidden(self.index_col, True)
         layout.addWidget(self.table)
 
         btn = QPushButton("Remove rows")
@@ -38,9 +41,13 @@ class RowsWidget(QWidget):
         self.setWindowTitle("Rows")
 
     def remove_rows(self):
-        ids = set()
+        model = self.table.model()
+        rows = set()
         for idx in self.table.selectedIndexes():
-            ids.add(self.all_data.index[idx.row()])
-        self.wnd.data = self.wnd.data[~self.wnd.data.index.isin(ids)]
+            rows.add(idx.row())
+        ids = set()
+        for row in rows:
+            ids.add(int(model.data(model.index(row, self.index_col))))
+        self.wnd.data    = self.wnd.data[~self.wnd.data.index.isin(ids)]
         self.wnd.update_data()
         self.close()
