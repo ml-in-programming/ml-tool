@@ -49,7 +49,7 @@ class ColumnWidget(QGroupBox):
         meaningLayout.addWidget(self.meaningComboBox)
         layout.addLayout(meaningLayout)
 
-        self.normalizeButton = QCheckBox("Scale values to the standard scale")
+        self.normalizeButton = QCheckBox("Normalize values")
         self.normalizeButton.setChecked(True)
         self.normalizeButton.stateChanged.connect(self.update_options)
         layout.addWidget(self.normalizeButton)
