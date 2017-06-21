@@ -53,7 +53,12 @@ class DataPreprocessorWindow(QMainWindow):
         for i, col in enumerate(self.data.columns):
             meaning = self.columns[i].meaning()
             if meaning == "a continuous value":
-                result = pd.concat([result, self.data[col]], axis=1)
+                col_data = self.data[col]
+                if self.columns[i].normalize():
+                    col_data = col_data - col_data.mean()
+                    if col_data.min() < col_data.max():
+                        col_data /= col_data.max() - col_data.min()
+                result = pd.concat([result, col_data], axis=1)
             elif meaning == "several independent categories":
                 result = pd.concat([result, pd.get_dummies(self.data[col], prefix=col)], axis=1)
             elif meaning == "none, should be ignored":

@@ -33,6 +33,7 @@ class ColumnWidget(QGroupBox):
         missingLayout = QHBoxLayout()
         missingLayout.addWidget(self.missingLabel)
         missingLayout.addWidget(self.missingButton)
+        layout.addLayout(missingLayout)
 
         meaningLayout = QHBoxLayout()
         meaningLayout.addWidget(QLabel("Meaning:"))
@@ -44,9 +45,14 @@ class ColumnWidget(QGroupBox):
             if len(series.value_counts()) < 40:
                 self.meaningComboBox.addItem("several independent categories")
         self.meaningComboBox.addItem("none, should be ignored")
-        layout.addLayout(missingLayout)
+        self.meaningComboBox.currentTextChanged.connect(self.update_options)
         meaningLayout.addWidget(self.meaningComboBox)
         layout.addLayout(meaningLayout)
+
+        self.normalizeButton = QCheckBox("Scale values to the standard scale")
+        self.normalizeButton.setChecked(True)
+        self.normalizeButton.stateChanged.connect(self.update_options)
+        layout.addWidget(self.normalizeButton)
 
         self.distinctValuesLabel = QLabel()
         layout.addWidget(self.distinctValuesLabel)
@@ -68,14 +74,12 @@ class ColumnWidget(QGroupBox):
         self.series = series
         self.all_data = all_data
 
-        missing = series.isnull().sum()
-        if missing:
-            self.missingLabel.setText("Missing values: {} ({:.0f}%)".format(missing, missing / len(series) * 100.0))
-            self.missingLabel.setStyleSheet("color: red")
+        self.missing = series.isnull().sum()
+        if self.missing:
+            self.missingLabel.setText("Missing values: {} ({:.0f}%)".format(self.missing, self.missing / len(series) * 100.0))
             self.missingButton.show()
         else:
             self.missingLabel.setText("All values are present")
-            self.missingLabel.setStyleSheet("")
             self.missingButton.hide()
 
         if series.dtypes in [np.float, np.int64]:
@@ -99,6 +103,18 @@ class ColumnWidget(QGroupBox):
             sns.barplot(x=counts.index, y=counts, ax=self.ax1)
             self.figureCanvas.draw()
             self.figureCanvas.show()
+        self.update_options()
+
+    def update_options(self):
+        if self.meaning() == "none, should be ignored" or self.missing == 0:
+            self.missingLabel.setStyleSheet("")
+        else:
+            self.missingLabel.setStyleSheet("color: red")
+
+        if self.meaning() == "a continuous value":
+            self.normalizeButton.show()
+        else:
+            self.normalizeButton.hide()
 
     def view_values(self, checked: Optional[bool]):
         self.viewer = ColumnValuesWidget(self.series, self.all_data, self.wnd)
@@ -110,3 +126,6 @@ class ColumnWidget(QGroupBox):
 
     def meaning(self):
         return self.meaningComboBox.currentText()
+
+    def normalize(self):
+        return self.meaning() == "a continuous value" and self.normalizeButton.isChecked()
